@@ -4,65 +4,57 @@ import java.util.List;
 
 public class CustomerBasket implements CalculatableBillOfProducts {
 	
-	private List<Product> productsBought;
+	private List<Product> productsBoughtRepo;
+	private List<Product> twoForThreeDealProductsRepo;
+	private List<Product> buyOneGetOneHalfPriceProductsRepo;
 	
 	public CustomerBasket() {
-		this.productsBought = new ArrayList<Product>();
+		this.productsBoughtRepo = new ArrayList<Product>();
+		this.twoForThreeDealProductsRepo = new ArrayList<Product>();
+		this.buyOneGetOneHalfPriceProductsRepo = new ArrayList<Product>();
 	}
 	
 	public List<Product> getProductsBought() {
-		return Collections.unmodifiableList(productsBought);
+		return Collections.unmodifiableList(productsBoughtRepo);
+	}
+	
+	public List<Product> getTwoForThreeDealProducts() {
+		return Collections.unmodifiableList(twoForThreeDealProductsRepo);
+	}
+
+	public List<Product> getBuyOneGetOneHalfPriceProducts() {
+		return Collections.unmodifiableList(buyOneGetOneHalfPriceProductsRepo);
 	}
 
 	public double calculateBill() {
 		double total = 0;
-		total = calculateBill(productsBought, total);
-		total = calculate2For3Discount(productsBought, total);
-		total = calculateBuy1Get1HalfPrice(productsBought, total);
+		total = calculateBill(productsBoughtRepo, total);
+		total = calculate2For3Discount(twoForThreeDealProductsRepo, total);
+		total = calculateBuy1Get1HalfPrice(buyOneGetOneHalfPriceProductsRepo, total);
 		return total;
 	}
 
-	private double calculateBuy1Get1HalfPrice(List<Product> products,
-			double total) {
+	private double calculateBuy1Get1HalfPrice(List<Product> products, double total) {
 		double tempPrice = 0;
-		tempPrice = getProductDiscountForBuy1Get1HalfPrice(products);
+		for (int index = 0; index < products.size(); index++) {
+			double currentPrice = products.get(index).getPrice() * 0.50;
+			tempPrice += currentPrice;
+		}
+		total -= tempPrice;
+		return total;
+	}
+	
+	private double calculate2For3Discount(List<Product> products, double total) {
+		double tempPrice = getDiscountFor2For3Discount(products);
 		total -= tempPrice;
 		return total;
 	}
 
-	private double getProductDiscountForBuy1Get1HalfPrice(List<Product> products) {
-		double tempPrice = 0;
-		if(products.size() > 4) {
-			for (int index = 3; index < products.size(); index++) {
-				String firstProduct = products.get(index).getName();
-				for (int j = index + 1; j < products.size(); j++) {
-					String secondProduct = products.get(j).getName();
-					if(firstProduct.equals(secondProduct)) {
-						tempPrice = (products.get(j).getPrice() * 0.5);
-					}
-				}
-			}
-		}else if(products.size() == 2) {
-			if(products.get(0).getName().equals(products.get(1).getName())) {
-				tempPrice = products.get(1).getPrice() * 0.5;
-			}
-		}
-		return tempPrice;
-	}
-
-	private double calculate2For3Discount(List<Product> products, double total) {
-		int tempPrice = getDiscountFor2For3Discount(products);
-		total-=tempPrice;
-		return total;
-	}
-
-	private int getDiscountFor2For3Discount(List<Product> products) {
+	private double getDiscountFor2For3Discount(List<Product> products) {
 		int tempPrice = 0;
-		if(products.size() > 2) {
-			for (int index = 0; index < 3; index++) {
-				tempPrice = Math.min(products.get(0).getPrice(), 
-								     products.get(index).getPrice());
-			}
+		for (int index = 0; index < 3; index++) {
+			tempPrice = Math.min(products.get(0).getPrice(), 
+								 products.get(index).getPrice());
 		}
 		return tempPrice;
 	}
@@ -74,29 +66,40 @@ public class CustomerBasket implements CalculatableBillOfProducts {
 		return total;
 	}
 	
-	public void getSelectedCustomerProducts(String[] customerBasket,
+	public void getSelectedProducts(String typeOfRepo, String[] customerBasket,
 			List<Product> marketProducts) {
 		for (int index = 0; index < customerBasket.length; index++) {
-			getSelectedProduct(customerBasket, marketProducts, index);
+			getSelectedProduct(typeOfRepo, customerBasket, marketProducts, index);
 		}
 	}
 
-	private void getSelectedProduct(String[] customerBasket,
-			List<Product> marketProducts, int index) {
+	private void getSelectedProduct(String typeOfRepo, String[] customerBasket, 
+				List<Product> products, int index) {
 		String currentProduct = customerBasket[index];
 		switch (currentProduct) {
 			case "apple":
-				productsBought.add(marketProducts.get(0));
+				addProductToRepository(typeOfRepo, products, 0);
 				break;
 			case "banana":
-				productsBought.add(marketProducts.get(1));
+				addProductToRepository(typeOfRepo, products, 1);
 				break;
 			case "tomato":
-				productsBought.add(marketProducts.get(2));
+				addProductToRepository(typeOfRepo, products, 2);
 				break;
 			case "potato":
-				productsBought.add(marketProducts.get(3));
+				addProductToRepository(typeOfRepo, products, 3);
 				break;
+		}
+	}
+
+	private void addProductToRepository(String typeOfRepo, 
+			List<Product> marketProducts, int marketProductIndex) {
+		if(typeOfRepo.equals("productsBoughtRepo")) {
+			productsBoughtRepo.add(marketProducts.get(marketProductIndex));
+		}else if(typeOfRepo.equals("twoForThreeDealProductsRepo")) {
+			twoForThreeDealProductsRepo.add(marketProducts.get(marketProductIndex));
+		}else if(typeOfRepo.equals("buyOneGetOneHalfPriceProductsRepo")) {
+			buyOneGetOneHalfPriceProductsRepo.add(marketProducts.get(marketProductIndex));
 		}
 	}
 }

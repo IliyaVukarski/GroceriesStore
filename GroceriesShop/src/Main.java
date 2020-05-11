@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+	private static final String[] typeOfRepositories = {
+		"productsBoughtRepo",
+		"twoForThreeDealProductsRepo",
+		"buyOneGetOneHalfPriceProductsRepo"
+	};
 	private static List<Product> marketProducts = new ArrayList<Product>(
 			Arrays.asList(new Product("apple", 50), 
 						  new Product("banana", 40),
@@ -19,9 +24,14 @@ public class Main {
 	
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
+		String[] twoForThreeDealProducts = scanner.nextLine().split("\\,\\s+");
+		String[] buyOneGetOneHalfPrice = scanner.nextLine().split("\\,\\s+");
 		String[] customerBasket = scanner.nextLine().split("\\,\\s+");
 		CustomerBasket basket = new CustomerBasket();
-		basket.getSelectedCustomerProducts(customerBasket, marketProducts);
+		basket.getSelectedProducts(typeOfRepositories[0], customerBasket, marketProducts);
+		basket.getSelectedProducts(typeOfRepositories[1], twoForThreeDealProducts, marketProducts);
+		basket.getSelectedProducts(typeOfRepositories[2], buyOneGetOneHalfPrice, marketProducts);
+		
 		double total = basket.calculateBill();
 		printBill(total);
 	}
